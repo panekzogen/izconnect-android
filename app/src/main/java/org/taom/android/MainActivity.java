@@ -14,13 +14,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
 
-import org.taom.izconnect.network.NetworkService;
+import org.taom.android.alljoyn.AndroidNetworkService;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     static {
         System.loadLibrary("alljoyn_java");
     }
+
+    private AndroidNetworkService networkService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,9 +50,15 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         ListView devices = (ListView) findViewById(R.id.DevicesListView);
-        NetworkService networkService = new NetworkService(devices);
+        networkService = new AndroidNetworkService();
         networkService.doConnect();
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        networkService.doDisconnect();
     }
 
     @Override

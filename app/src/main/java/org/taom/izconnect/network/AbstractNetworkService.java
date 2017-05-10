@@ -1,37 +1,16 @@
-/*
- * Copyright AllSeen Alliance. All rights reserved.
- *
- * Permission to use, copy, modify, and/or distribute this software for any
- * purpose with or without fee is hereby granted, provided that the above
- * copyright notice and this permission notice appear in all copies.
- *
- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
- * REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
- * AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
- * INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
- * LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
- * OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
- * PERFORMANCE OF THIS SOFTWARE.
- */
-
 package org.taom.izconnect.network;
 
-import android.widget.ListView;
-
 import org.alljoyn.bus.*;
+import org.taom.izconnect.network.interfaces.SampleInterface;
+import org.taom.izconnect.network.interfaces.SampleService;
 
-import java.util.Map;
-
-/** This class will handle all AllJoyn calls. */
-public class NetworkService {
+public abstract class AbstractNetworkService {
 
     private static final String ALLJOYN_TAG = "Alljoyn";
 
-    private static final String PACKAGE_NAME = "org.taom.izconnect.network";
+    public static final String PACKAGE_NAME = "org.taom.izconnect.network";
     private static final String OBJECT_PATH = "/izconnectService";
     private static final short CONTACT_PORT = 4753;
-
-    private ListView devices;
 
     private BusAttachment mBus;
     private Observer mObserver;
@@ -41,8 +20,7 @@ public class NetworkService {
         System.loadLibrary("alljoyn_java");
     }
 
-    public NetworkService(ListView devices) {
-        this.devices = devices;
+    public AbstractNetworkService() {
     }
 
     public void doConnect() {
@@ -81,23 +59,20 @@ public class NetworkService {
         }
 
         AboutObj mAboutObj = new AboutObj(mBus);
-        MyAboutData mAboutData = new MyAboutData();
+        AboutDataListener mAboutData = getAboutData();
         status = mAboutObj.announce(CONTACT_PORT, mAboutData);
         if (status != Status.OK) {
             System.out.println(ALLJOYN_TAG + "Problem while sending about info");
             return;
         }
 
-        mBus.registerAboutListener(new AboutListener() {
-            @Override
-            public void announced(String s, int i, short i1, AboutObjectDescription[] aboutObjectDescriptions, Map<String, Variant> map) {
-                System.out.print("announced: ");
-                System.out.println(s);
-            }
-        });
+        AboutListener aboutListener = getAboutListener();
+        if (aboutListener != null) {
+            mBus.registerAboutListener(aboutListener);
+        }
 
         mBus.whoImplements(new String[]{PACKAGE_NAME});
-        mBus.whoImplements(new String[]{SampleInterface.INTERFACE_NAME});
+//        mBus.whoImplements(new String[]{SampleInterface.INTERFACE_NAME});
 
         status = mBus.registerSignalHandlers(sampleService);
         if (status != Status.OK) {
@@ -105,19 +80,11 @@ public class NetworkService {
             return;
         }
 
-        mObserver = new Observer(mBus, new Class[] { SampleInterface.class });
-        mObserver.registerListener(new Observer.Listener() {
-
-            @Override
-            public void objectDiscovered(ProxyBusObject obj) {
-                System.out.println("founded");
-            }
-
-            @Override
-            public void objectLost(ProxyBusObject proxyBusObject) {
-
-            }
-        });
+        mObserver = new Observer(mBus, new Class[]{SampleInterface.class});
+        Observer.Listener observerListener = getObserverListener();
+        if (observerListener != null) {
+            mObserver.registerListener(observerListener);
+        }
 
     }
 
@@ -125,4 +92,10 @@ public class NetworkService {
 //        mBus.unregisterBusListener();
         mBus.disconnect();
     }
+
+    protected abstract AboutDataListener getAboutData();
+
+    protected abstract AboutListener getAboutListener();
+
+    protected abstract Observer.Listener getObserverListener();
 }

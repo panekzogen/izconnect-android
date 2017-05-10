@@ -1,4 +1,4 @@
-package org.taom.izconnect.network;
+package org.taom.izconnect.network.interfaces;
 
 import org.alljoyn.bus.BusException;
 import org.alljoyn.bus.annotation.BusInterface;
@@ -12,4 +12,3 @@ public interface SampleInterface {
     @BusSignal
     void message(String str) throws BusException;
 }
-
