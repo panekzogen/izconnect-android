@@ -1,13 +1,13 @@
 package org.taom.android;
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.os.IBinder;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -18,7 +18,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
 
-import org.taom.android.alljoyn.AndroidNetworkService;
+import org.taom.android.alljoyn.AllJoynService;
+import org.taom.android.tabs.FragmentPagerAdapterImpl;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -26,7 +27,9 @@ public class MainActivity extends AppCompatActivity
         System.loadLibrary("alljoyn_java");
     }
 
-    private AndroidNetworkService networkService;
+    Intent service;
+
+    boolean mBound = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,15 +55,44 @@ public class MainActivity extends AppCompatActivity
         tabLayout.setupWithViewPager(viewPager);
 
         ListView devices = (ListView) findViewById(R.id.DevicesListView);
-        networkService = new AndroidNetworkService(devices);
-        networkService.doConnect();
+
+        service = new Intent(this, AllJoynService.class);
+        startService(service);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Intent intent = new Intent(this, AllJoynService.class);
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
     }
 
     @Override
     protected void onDestroy() {
+        if (mBound) {
+            unbindService(mConnection);
+            mBound = false;
+        }
         super.onDestroy();
-        networkService.doDisconnect();
     }
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            mBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBound = false;
+        }
+    };
 
     @Override
     public void onBackPressed() {
@@ -88,6 +120,12 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            return true;
+        }
+
+        if (id == R.id.action_quit) {
+            stopService(service);
+            finish();
             return true;
         }
 

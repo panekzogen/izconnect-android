@@ -5,13 +5,14 @@ import android.widget.ListView;
 import org.alljoyn.bus.AboutDataListener;
 import org.alljoyn.bus.AboutListener;
 import org.alljoyn.bus.Observer;
+import org.taom.android.DeviceAdapter;
 import org.taom.izconnect.network.AbstractNetworkService;
 
 public class AndroidNetworkService extends AbstractNetworkService {
     private final AndroidAboutListener androidAboutListener;
     private final AndroidObserverListener androidObserverListener;
 
-    public AndroidNetworkService(ListView devices) {
+    public AndroidNetworkService(DeviceAdapter deviceAdapter) {
         super();
         androidAboutListener = new AndroidAboutListener();
         androidObserverListener = new AndroidObserverListener();

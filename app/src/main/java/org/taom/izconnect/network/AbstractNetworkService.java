@@ -85,11 +85,12 @@ public abstract class AbstractNetworkService {
         if (observerListener != null) {
             mObserver.registerListener(observerListener);
         }
-
     }
 
     public void doDisconnect() {
-//        mBus.unregisterBusListener();
+        mBus.unregisterAboutListener(getAboutListener());
+        mBus.unregisterBusObject(sampleService);
+        mBus.unregisterSignalHandlers(sampleService);
         mBus.disconnect();
     }
 
