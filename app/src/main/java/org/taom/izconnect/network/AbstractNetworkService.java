@@ -1,6 +1,14 @@
 package org.taom.izconnect.network;
 
-import org.alljoyn.bus.*;
+import org.alljoyn.bus.AboutDataListener;
+import org.alljoyn.bus.AboutListener;
+import org.alljoyn.bus.AboutObj;
+import org.alljoyn.bus.BusAttachment;
+import org.alljoyn.bus.Mutable;
+import org.alljoyn.bus.Observer;
+import org.alljoyn.bus.SessionOpts;
+import org.alljoyn.bus.SessionPortListener;
+import org.alljoyn.bus.Status;
 import org.taom.izconnect.network.interfaces.SampleInterface;
 import org.taom.izconnect.network.interfaces.SampleService;
 
@@ -13,7 +21,7 @@ public abstract class AbstractNetworkService {
     private static final short CONTACT_PORT = 4753;
 
     private BusAttachment mBus;
-    private Observer mObserver;
+    Observer mObserver;
     private SampleService sampleService = new SampleService();
 
     static {
@@ -66,11 +74,6 @@ public abstract class AbstractNetworkService {
             return;
         }
 
-        AboutListener aboutListener = getAboutListener();
-        if (aboutListener != null) {
-            mBus.registerAboutListener(aboutListener);
-        }
-
         mBus.whoImplements(new String[]{PACKAGE_NAME});
 //        mBus.whoImplements(new String[]{SampleInterface.INTERFACE_NAME});
 
@@ -79,19 +82,40 @@ public abstract class AbstractNetworkService {
             System.out.println(ALLJOYN_TAG + "Problem while registering signal handler");
             return;
         }
+    }
 
-        mObserver = new Observer(mBus, new Class[]{SampleInterface.class});
-        Observer.Listener observerListener = getObserverListener();
-        if (observerListener != null) {
-            mObserver.registerListener(observerListener);
+    public void registerListeners() {
+        if (mBus != null) {
+            AboutListener aboutListener = getAboutListener();
+            if (aboutListener != null) {
+                mBus.registerAboutListener(aboutListener);
+            }
+
+            mObserver = new Observer(mBus, new Class[]{SampleInterface.class});
+            Observer.Listener observerListener = getObserverListener();
+            if (observerListener != null) {
+                mObserver.registerListener(observerListener);
+            }
+        }
+    }
+
+    public void unregisterListeners() {
+        if (mBus != null) {
+            mBus.unregisterAboutListener(getAboutListener());
+
+            if (mObserver != null) {
+                mObserver.unregisterListener(getObserverListener());
+            }
         }
     }
 
     public void doDisconnect() {
-        mBus.unregisterAboutListener(getAboutListener());
-        mBus.unregisterBusObject(sampleService);
-        mBus.unregisterSignalHandlers(sampleService);
-        mBus.disconnect();
+        if (mBus != null) {
+            unregisterListeners();
+            mBus.unregisterBusObject(sampleService);
+            mBus.unregisterSignalHandlers(sampleService);
+            mBus.disconnect();
+        }
     }
 
     protected abstract AboutDataListener getAboutData();

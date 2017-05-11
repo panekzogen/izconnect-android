@@ -6,30 +6,28 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.design.widget.TabLayout;
-import android.support.v4.view.ViewPager;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ListView;
 
 import org.taom.android.alljoyn.AllJoynService;
+import org.taom.android.devices.DeviceAdapter;
 import org.taom.android.tabs.FragmentPagerAdapterImpl;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-    static {
-        System.loadLibrary("alljoyn_java");
-    }
 
-    Intent service;
+    private Intent service;
+    private DeviceAdapter deviceAdapter;
 
-    boolean mBound = false;
+    private boolean mBound = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,22 +52,12 @@ public class MainActivity extends AppCompatActivity
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
 
-        ListView devices = (ListView) findViewById(R.id.DevicesListView);
+        deviceAdapter = new DeviceAdapter();
+        fragmentPagerAdapter.setDeviceAdapter(deviceAdapter);
 
         service = new Intent(this, AllJoynService.class);
         startService(service);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Intent intent = new Intent(this, AllJoynService.class);
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
+        bindService(service, mConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
@@ -82,14 +70,20 @@ public class MainActivity extends AppCompatActivity
     }
 
     private ServiceConnection mConnection = new ServiceConnection() {
+        private AllJoynService allJoynService;
 
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
+            allJoynService = ((AllJoynService.AllJoynBinder) service).getInstance();
+            allJoynService.setDeviceAdapter(deviceAdapter);
             mBound = true;
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
+            if (mBound) {
+                allJoynService.setDeviceAdapter(null);
+            }
             mBound = false;
         }
     };

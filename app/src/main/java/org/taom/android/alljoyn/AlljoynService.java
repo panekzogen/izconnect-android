@@ -8,8 +8,8 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 
-import org.taom.android.DeviceAdapter;
 import org.taom.android.R;
+import org.taom.android.devices.DeviceAdapter;
 
 public class AllJoynService extends Service {
     private static final int NOTIFICATION_ID = 0xdefaced;
@@ -19,15 +19,12 @@ public class AllJoynService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-
-        return null;
+        return new AllJoynBinder();
     }
 
     public void onCreate() {
-//        networkService = new AndroidNetworkService(R.id.devices_main);
         startForeground(NOTIFICATION_ID, createNotification());
-
-        networkService = new AndroidNetworkService(new DeviceAdapter());
+        networkService = new AndroidNetworkService();
         networkService.doConnect();
     }
 
@@ -39,21 +36,6 @@ public class AllJoynService extends Service {
                 .setSmallIcon(R.drawable.logo)
                 .setContentTitle(title)
                 .setContentText(message);
-
-//        Intent resultIntent = new Intent(this, MainActivity.class);
-//
-//        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-//        stackBuilder.addParentStack(MainActivity.class);
-//        stackBuilder.addNextIntent(resultIntent);
-//        PendingIntent resultPendingIntent =
-//                stackBuilder.getPendingIntent(
-//                        0,
-//                        PendingIntent.FLAG_UPDATE_CURRENT
-//                );
-//        mBuilder.setContentIntent(resultPendingIntent);
-//        NotificationManager mNotificationManager =
-//                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-//        mNotificationManager.notify(mId, mBuilder.build());
         return mBuilder.build();
     }
 
@@ -66,7 +48,15 @@ public class AllJoynService extends Service {
         networkService.doDisconnect();
     }
 
-    public class AllJoynBinder extends Binder {
+    public void setDeviceAdapter(DeviceAdapter deviceAdapter) {
+        networkService.unregisterListeners();
+        networkService.setDeviceAdapter(deviceAdapter);
+        networkService.registerListeners();
+    }
 
+    public class AllJoynBinder extends Binder {
+        public AllJoynService getInstance() {
+            return AllJoynService.this;
+        }
     }
 }
