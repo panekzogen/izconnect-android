@@ -19,12 +19,15 @@ import android.view.MenuItem;
 
 import org.taom.android.alljoyn.AllJoynService;
 import org.taom.android.devices.DeviceAdapter;
+import org.taom.android.devices.DeviceAdapterItem;
+import org.taom.android.devices.UIUpdater;
 import org.taom.android.tabs.FragmentPagerAdapterImpl;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private Intent service;
+    private AllJoynService allJoynService;
     private DeviceAdapter deviceAdapter;
 
     private boolean mBound = false;
@@ -53,37 +56,60 @@ public class MainActivity extends AppCompatActivity
         tabLayout.setupWithViewPager(viewPager);
 
         deviceAdapter = new DeviceAdapter();
+        deviceAdapter.setUiUpdater(new UIUpdater() {
+            @Override
+            public void updateUI(Runnable task) {
+                runOnUiThread(task);
+            }
+        });
         fragmentPagerAdapter.setDeviceAdapter(deviceAdapter);
 
         service = new Intent(this, AllJoynService.class);
         startService(service);
-        bindService(service, mConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
-    protected void onDestroy() {
+    protected void onStart() {
+        bindService(service, mConnection, Context.BIND_AUTO_CREATE);
+        super.onStart();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
         if (mBound) {
             unbindService(mConnection);
             mBound = false;
         }
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
         super.onDestroy();
     }
 
     private ServiceConnection mConnection = new ServiceConnection() {
-        private AllJoynService allJoynService;
-
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
             allJoynService = ((AllJoynService.AllJoynBinder) service).getInstance();
             allJoynService.setDeviceAdapter(deviceAdapter);
             mBound = true;
+            System.out.println("hi im on bind");
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            if (mBound) {
-                allJoynService.setDeviceAdapter(null);
-            }
+            allJoynService.setDeviceAdapter(null);
             mBound = false;
         }
     };

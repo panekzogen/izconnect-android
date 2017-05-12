@@ -1,6 +1,5 @@
 package org.taom.android.devices;
 
-import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,6 +30,7 @@ public class DeviceAdapter extends BaseAdapter implements Serializable {
     }
 
     private final Vector<DeviceAdapterItem> list;
+    private UIUpdater uiUpdater;
 
     public DeviceAdapter() {
         list = new Vector<>();
@@ -80,8 +80,14 @@ public class DeviceAdapter extends BaseAdapter implements Serializable {
     }
 
     public void add(final DeviceAdapterItem device) {
-        list.add(device);
-        notifyDataSetChanged();
+        if (uiUpdater != null)
+            uiUpdater.updateUI(new Runnable() {
+                @Override
+                public void run() {
+                    list.add(device);
+                    notifyDataSetChanged();
+                }
+            });
     }
 
     public void remove(final DeviceAdapterItem device) {
@@ -101,6 +107,10 @@ public class DeviceAdapter extends BaseAdapter implements Serializable {
                 break;
             }
         }
+    }
+
+    public void setUiUpdater(UIUpdater uiUpdater) {
+        this.uiUpdater = uiUpdater;
     }
 
 }

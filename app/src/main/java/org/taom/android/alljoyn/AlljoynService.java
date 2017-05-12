@@ -49,7 +49,7 @@ public class AllJoynService extends Service {
     }
 
     public void setDeviceAdapter(DeviceAdapter deviceAdapter) {
-        networkService.unregisterListeners();
+//        networkService.unregisterListeners();
         networkService.setDeviceAdapter(deviceAdapter);
         networkService.registerListeners();
     }

@@ -20,6 +20,7 @@ public class DevicesListFragment extends Fragment {
             final ListView devicesList = (ListView) rootView.findViewById(R.id.devicesListView);
             devicesList.setAdapter(deviceAdapter);
         }
+        System.out.println("Im fragment create");
         return rootView;
     }
 
