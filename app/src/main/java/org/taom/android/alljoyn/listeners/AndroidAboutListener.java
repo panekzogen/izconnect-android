@@ -1,4 +1,4 @@
-package org.taom.android.alljoyn;
+package org.taom.android.alljoyn.listeners;
 
 import org.alljoyn.bus.AboutListener;
 import org.alljoyn.bus.AboutObjectDescription;
@@ -15,7 +15,6 @@ public class AndroidAboutListener implements AboutListener {
 
     @Override
     public void announced(String s, int i, short i1, AboutObjectDescription[] aboutObjectDescriptions, Map<String, Variant> map) {
-        System.out.println("gg");
         if (deviceAdapter != null)
             deviceAdapter.add(s, map);
     }

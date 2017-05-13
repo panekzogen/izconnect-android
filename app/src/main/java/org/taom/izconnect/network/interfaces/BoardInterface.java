@@ -4,10 +4,10 @@ import org.alljoyn.bus.BusException;
 import org.alljoyn.bus.annotation.BusInterface;
 import org.alljoyn.bus.annotation.BusSignal;
 
-@BusInterface(name = SampleInterface.INTERFACE_NAME, announced = "true")
-public interface SampleInterface {
+@BusInterface(name = BoardInterface.INTERFACE_NAME, announced = "true")
+public interface BoardInterface {
 
-    String INTERFACE_NAME = "org.taom.izconnect.network.SampleInterface";
+    String INTERFACE_NAME = "org.taom.izconnect.network.BoardInterface";
 
     @BusSignal
     void message(String str) throws BusException;

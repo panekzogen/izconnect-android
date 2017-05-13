@@ -15,6 +15,7 @@ import org.taom.android.R;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 public class DeviceAdapter extends BaseAdapter implements Serializable {
@@ -80,7 +81,7 @@ public class DeviceAdapter extends BaseAdapter implements Serializable {
     }
 
     public void add(final DeviceAdapterItem device) {
-        if (uiUpdater != null)
+        if (uiUpdater != null) {
             uiUpdater.updateUI(new Runnable() {
                 @Override
                 public void run() {
@@ -88,24 +89,39 @@ public class DeviceAdapter extends BaseAdapter implements Serializable {
                     notifyDataSetChanged();
                 }
             });
+        }
     }
 
     public void remove(final DeviceAdapterItem device) {
-        if (list.contains(device)) {
-            list.remove(device);
-            notifyDataSetChanged();
+        if (uiUpdater != null) {
+            uiUpdater.updateUI(new Runnable() {
+                @Override
+                public void run() {
+                    if (list.contains(device)) {
+                        list.remove(device);
+                        notifyDataSetChanged();
+                    }
+                }
+            });
         }
     }
 
     public void remove(final String busName) {
-        Iterator<DeviceAdapterItem> it = list.iterator();
-        while (it.hasNext()) {
-            DeviceAdapterItem device = it.next();
-            if (device.getBusName().equals(busName)) {
-                it.remove();
-                notifyDataSetChanged();
-                break;
-            }
+        if (uiUpdater != null) {
+            uiUpdater.updateUI(new Runnable() {
+                @Override
+                public void run() {
+                    Iterator<DeviceAdapterItem> it = list.iterator();
+                    while (it.hasNext()) {
+                        DeviceAdapterItem device = it.next();
+                        if (device.getBusName().equals(busName)) {
+                            it.remove();
+                            notifyDataSetChanged();
+                            break;
+                        }
+                    }
+                }
+            });
         }
     }
 
@@ -113,4 +129,9 @@ public class DeviceAdapter extends BaseAdapter implements Serializable {
         this.uiUpdater = uiUpdater;
     }
 
+    public void addAll(Set<DeviceAdapterItem> items) {
+        for (DeviceAdapterItem item : items) {
+            add(item);
+        }
+    }
 }

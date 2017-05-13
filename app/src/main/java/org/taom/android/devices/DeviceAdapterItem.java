@@ -5,18 +5,38 @@ import org.taom.android.R;
 public class DeviceAdapterItem {
 
     public enum DeviceType {
-        PC(R.drawable.pc),
-        MOBILE(R.drawable.mobile),
-        BOARD(0);
+        BOARD(1, 0),
+        MOBILE(2, R.drawable.mobile),
+        PC(3, R.drawable.pc),
+        UNKNOWN(4, 0);
 
+        private final int id;
         private final int drawableId;
 
-        DeviceType(int drawableId) {
+        DeviceType(int id, int drawableId) {
+            this.id = id;
             this.drawableId = drawableId;
         }
 
         public int getDrawableId() {
             return drawableId;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public static DeviceType valueOf(int id) {
+            switch (id) {
+                case 1:
+                    return BOARD;
+                case 2:
+                    return MOBILE;
+                case 3:
+                    return PC;
+                default:
+                    return UNKNOWN;
+            }
         }
     }
 
