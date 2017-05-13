@@ -16,6 +16,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 
 import org.taom.android.alljoyn.AllJoynService;
 import org.taom.android.devices.DeviceAdapter;
@@ -48,12 +50,6 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        FragmentPagerAdapterImpl fragmentPagerAdapter = new FragmentPagerAdapterImpl(getSupportFragmentManager());
-        ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
-        viewPager.setAdapter(fragmentPagerAdapter);
-
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
-        tabLayout.setupWithViewPager(viewPager);
 
         deviceAdapter = new DeviceAdapter();
         deviceAdapter.setUiUpdater(new UIUpdater() {
@@ -62,7 +58,22 @@ public class MainActivity extends AppCompatActivity
                 runOnUiThread(task);
             }
         });
-        fragmentPagerAdapter.setDeviceAdapter(deviceAdapter);
+
+        final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
+        final FragmentPagerAdapterImpl fragmentPagerAdapter = new FragmentPagerAdapterImpl(getSupportFragmentManager(), deviceAdapter);
+        fragmentPagerAdapter.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                view.setSelected(true);
+                deviceAdapter.setSelectedItem(position);
+                fragmentPagerAdapter.notifyDataSetChanged();
+                viewPager.setCurrentItem(FragmentPagerAdapterImpl.CONTROLS_FRAGMENT_POSITION);
+            }
+        });
+        viewPager.setAdapter(fragmentPagerAdapter);
+
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(viewPager);
 
         service = new Intent(this, AllJoynService.class);
         startService(service);

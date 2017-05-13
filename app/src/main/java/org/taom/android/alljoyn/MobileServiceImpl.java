@@ -7,6 +7,6 @@ import org.taom.izconnect.network.interfaces.MobileInterface;
 public class MobileServiceImpl implements BusObject, MobileInterface {
     @Override
     public void message(String str) throws BusException {
-
+        System.out.println(str);
     }
 }

@@ -1,15 +1,11 @@
 package org.taom.android.alljoyn;
 
-import android.os.Handler;
-
 import org.alljoyn.bus.AboutDataListener;
 import org.alljoyn.bus.AboutListener;
 import org.alljoyn.bus.Observer;
-import org.taom.android.alljoyn.listeners.AndroidAboutListener;
 import org.taom.android.alljoyn.listeners.BoardListener;
 import org.taom.android.alljoyn.listeners.MobileListener;
 import org.taom.android.alljoyn.listeners.PCListener;
-import org.taom.android.devices.DeviceAdapter;
 import org.taom.izconnect.network.AbstractNetworkService;
 
 public class AndroidNetworkService extends AbstractNetworkService {

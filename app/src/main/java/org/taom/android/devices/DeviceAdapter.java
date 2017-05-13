@@ -32,9 +32,18 @@ public class DeviceAdapter extends BaseAdapter implements Serializable {
 
     private final Vector<DeviceAdapterItem> list;
     private UIUpdater uiUpdater;
+    private DeviceAdapterItem selectedItem;
 
     public DeviceAdapter() {
         list = new Vector<>();
+    }
+
+    public DeviceAdapterItem getSelectedItem() {
+        return selectedItem;
+    }
+
+    public void setSelectedItem(int selectedItem) {
+        this.selectedItem = list.get(selectedItem);
     }
 
     @Override
