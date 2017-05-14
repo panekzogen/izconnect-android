@@ -1,4 +1,4 @@
-package org.taom.android.tabs;
+package org.taom.android.tabs.fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;

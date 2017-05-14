@@ -7,11 +7,11 @@ import org.taom.izconnect.network.AbstractAboutData;
 public class AndroidAboutData extends AbstractAboutData {
     @Override
     protected String getDeviceName() {
-        StringBuilder deviceName = new StringBuilder();
-        deviceName.append(Build.MODEL)
-                .append(";")
-                .append("Android ")
-                .append(Build.VERSION.RELEASE);
-        return deviceName.toString();
+        return Build.MODEL;
+    }
+
+    @Override
+    protected String getSoftwareVersion() {
+        return "Android " + Build.VERSION.RELEASE;
     }
 }

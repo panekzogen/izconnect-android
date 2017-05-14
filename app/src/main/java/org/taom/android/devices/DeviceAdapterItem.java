@@ -1,21 +1,26 @@
 package org.taom.android.devices;
 
 import org.taom.android.R;
+import org.taom.izconnect.network.interfaces.BoardInterface;
+import org.taom.izconnect.network.interfaces.MobileInterface;
+import org.taom.izconnect.network.interfaces.PCInterface;
 
 public class DeviceAdapterItem {
 
     public enum DeviceType {
-        BOARD(1, 0),
-        MOBILE(2, R.drawable.mobile),
-        PC(3, R.drawable.pc),
-        UNKNOWN(4, 0);
+        BOARD(1, R.drawable.board, BoardInterface.class),
+        MOBILE(2, R.drawable.mobile, MobileInterface.class),
+        PC(3, R.drawable.pc, PCInterface.class),
+        UNKNOWN(4, 0, null);
 
         private final int id;
         private final int drawableId;
+        private final Class interfaceClass;
 
-        DeviceType(int id, int drawableId) {
+        DeviceType(int id, int drawableId, Class interfaceClass) {
             this.id = id;
             this.drawableId = drawableId;
+            this.interfaceClass = interfaceClass;
         }
 
         public int getDrawableId() {
@@ -24,6 +29,10 @@ public class DeviceAdapterItem {
 
         public int getId() {
             return id;
+        }
+
+        public Class getInterfaceClass() {
+            return interfaceClass;
         }
 
         public static DeviceType valueOf(int id) {

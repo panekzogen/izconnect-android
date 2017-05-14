@@ -12,15 +12,21 @@ import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 
+import org.alljoyn.bus.BusException;
 import org.alljoyn.bus.ProxyBusObject;
+import org.alljoyn.bus.Variant;
 import org.taom.android.R;
 import org.taom.android.devices.DeviceAdapter;
 import org.taom.android.devices.DeviceAdapterItem;
+import org.taom.izconnect.network.GFLogger;
+import org.taom.izconnect.network.interfaces.PCInterface;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 
 public class AllJoynService extends Service {
+    private static final String TAG = "AllJoynService";
     private static final int NOTIFICATION_ID = 0xdefaced;
 
     private AndroidNetworkService mNetworkService;
@@ -169,8 +175,19 @@ public class AllJoynService extends Service {
     private void doDeviceDiscovered(int id, ProxyBusObject proxyBusObject) {
         String busName = proxyBusObject.getBusName();
         DeviceAdapterItem.DeviceType deviceType = DeviceAdapterItem.DeviceType.valueOf(id);
-        String deviceName = "device" + id;
-        String deviceOS = "device" + id;
+
+        String deviceName;
+        String deviceOS;
+        try {
+            Map<String, Variant> properties = proxyBusObject.getAllProperties(deviceType.getInterfaceClass());
+            deviceName = properties.get("DeviceName").getObject(String.class);
+            deviceOS = properties.get("DeviceOS").getObject(String.class);
+
+        } catch (BusException e) {
+            GFLogger.log(Level.SEVERE, TAG, "Cannot get device info.");
+            deviceName = "UNKNOWN";
+            deviceOS = "UNKNOWN";
+        }
 
         DeviceAdapterItem deviceAdapterItem = new DeviceAdapterItem(busName, deviceType, deviceName, deviceOS);
 

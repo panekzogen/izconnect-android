@@ -5,7 +5,7 @@ import org.alljoyn.bus.annotation.BusInterface;
 import org.alljoyn.bus.annotation.BusSignal;
 
 @BusInterface(name = BoardInterface.INTERFACE_NAME, announced = "true")
-public interface BoardInterface {
+public interface BoardInterface extends DeviceInfoInterface {
 
     String INTERFACE_NAME = "org.taom.izconnect.network.BoardInterface";
 

@@ -7,6 +7,8 @@ import android.widget.AdapterView;
 
 import org.taom.android.devices.DeviceAdapter;
 import org.taom.android.devices.DeviceAdapterItem;
+import org.taom.android.tabs.fragments.ControlsFragment;
+import org.taom.android.tabs.fragments.DevicesListFragment;
 
 public class FragmentPagerAdapterImpl extends FragmentPagerAdapter {
     public static final int DEVICES_FRAGMEENT_POSITION = 0;
@@ -32,8 +34,9 @@ public class FragmentPagerAdapterImpl extends FragmentPagerAdapter {
                 devicesListFragment.setOnItemClickListener(onItemClickListener);
                 return devicesListFragment;
             case CONTROLS_FRAGMENT_POSITION:
+                DeviceAdapterItem selectedItem = deviceAdapter.getSelectedItem();
                 ControlsFragment controlsFragment = new ControlsFragment();
-                controlsFragment.setDeviceAdapter(deviceAdapter);
+                controlsFragment.setSelectedItem(selectedItem);
                 return controlsFragment;
         }
         return null;

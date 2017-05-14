@@ -11,6 +11,7 @@ import org.alljoyn.bus.SessionOpts;
 import org.alljoyn.bus.SessionPortListener;
 import org.alljoyn.bus.Status;
 import org.taom.izconnect.network.interfaces.BoardInterface;
+import org.taom.izconnect.network.interfaces.DeviceInfoInterface;
 import org.taom.izconnect.network.interfaces.MobileInterface;
 import org.taom.izconnect.network.interfaces.PCInterface;
 
@@ -20,7 +21,7 @@ import static org.taom.izconnect.network.GFLogger.log;
 
 public abstract class AbstractNetworkService {
 
-    private static final String TAG = "Alljoyn";
+    private static final String TAG = "AllJoyn";
 
     protected static final String PACKAGE_NAME = "org.taom.izconnect.network";
     private static final String OBJECT_PATH = "/izconnectService";
@@ -91,8 +92,8 @@ public abstract class AbstractNetworkService {
     }
 
     public void unregisterInterface(BusObject busObject) {
-        mBus.unregisterBusObject(busObject);
         mBus.unregisterSignalHandlers(busObject);
+        mBus.unregisterBusObject(busObject);
     }
 
     public Status announce() {
