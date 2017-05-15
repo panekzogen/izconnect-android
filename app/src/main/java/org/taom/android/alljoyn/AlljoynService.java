@@ -15,15 +15,23 @@ import android.support.v4.app.NotificationCompat;
 import org.alljoyn.bus.BusException;
 import org.alljoyn.bus.ProxyBusObject;
 import org.alljoyn.bus.Variant;
+import org.taom.android.NotificationService;
 import org.taom.android.R;
 import org.taom.android.devices.DeviceAdapter;
 import org.taom.android.devices.DeviceAdapterItem;
-import org.taom.izconnect.network.GFLogger;
+import org.taom.android.tabs.fragments.ControlsFragment;
+import org.taom.izconnect.network.interfaces.MobileInterface;
 import org.taom.izconnect.network.interfaces.PCInterface;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
+
+import static org.taom.izconnect.network.GFLogger.*;
 
 public class AllJoynService extends Service {
     private static final String TAG = "AllJoynService";
@@ -32,6 +40,8 @@ public class AllJoynService extends Service {
     private AndroidNetworkService mNetworkService;
     private MobileServiceImpl mobileService;
     private BackgroundHandler mBackgroundHandler;
+    private NotificationService notificationService;
+    private Set<String> subscribers = Collections.synchronizedSet(new HashSet<String>());
 
     private DeviceAdapter deviceAdapter;
     private Map<DeviceAdapterItem, ProxyBusObject> map = new ConcurrentHashMap<>();
@@ -48,8 +58,9 @@ public class AllJoynService extends Service {
         mBackgroundHandler = new BackgroundHandler(busThread.getLooper());
 
         startForeground(NOTIFICATION_ID, createNotification());
+        notificationService = new NotificationService(mBackgroundHandler);
 
-        mobileService = new MobileServiceImpl();
+        mobileService = new MobileServiceImpl(subscribers, deviceAdapter);
         mNetworkService = new AndroidNetworkService(mBackgroundHandler);
 
         mBackgroundHandler.connect();
@@ -156,7 +167,50 @@ public class AllJoynService extends Service {
                 case DEVICE_LOST:
                     doDeviceLost((ProxyBusObject)msg.obj);
                     break;
+
+                case NotificationService.NOTIFY_SUBSCRIBERS:
+                    Iterator<String> it = subscribers.iterator();
+                    while (it.hasNext()) {
+                        String busName = it.next();
+                        DeviceAdapterItem device = deviceAdapter.findByBusName(busName);
+                        ProxyBusObject proxyBusObject = map.get(device);
+                        if (proxyBusObject == null) {
+                            it.remove();
+                        }
+                        String[] titleAndText = ((String) msg.obj).split(":");
+                        switch (device.getDeviceType()) {
+                            case PC:
+                                PCInterface pcInterface = proxyBusObject.getInterface(PCInterface.class);
+                                try {
+                                    pcInterface.notify(titleAndText[0].trim(), titleAndText[1].trim());
+                                } catch (BusException e) {
+                                    log(Level.SEVERE, TAG, "Cannot send notification");
+                                }
+                                break;
+                            case MOBILE:
+                                MobileInterface mobileInterface = proxyBusObject.getInterface(MobileInterface.class);
+                                try {
+                                    mobileInterface.notify(titleAndText[0].trim(), titleAndText[1].trim());
+                                } catch (BusException e) {
+                                    log(Level.SEVERE, TAG, "Cannot send notification");
+                                }
+                                break;
+                        }
+                    }
+                    break;
+
                 default:
+                    switch (deviceAdapter.getSelectedItem().getDeviceType()) {
+                        case BOARD:
+                            processBoardMessage(msg);
+                            break;
+                        case MOBILE:
+                            processMobileMessage(msg);
+                            break;
+                        case PC:
+                            processPCMessage(msg);
+                            break;
+                    }
                     break;
             }
         }
@@ -172,6 +226,127 @@ public class AllJoynService extends Service {
     private static final int DEVICE_DISCOVERED = 8;
     private static final int DEVICE_LOST = 9;
 
+    private void processPCMessage(Message msg) {
+        switch (msg.what) {
+            case ControlsFragment.VOLUME_CHANGED:
+                try {
+                    getCurrentProxyObj().getInterface(PCInterface.class).setVolume(msg.arg1);
+                } catch (BusException e) {
+                    log(Level.SEVERE, TAG, "Cannot change volume");
+                }
+                break;
+
+            case ControlsFragment.MEDIA_PLAY_BUTTON:
+                try {
+                    getCurrentProxyObj().getInterface(PCInterface.class).mediaControlPlayPause();
+                } catch (BusException e) {
+                    log(Level.SEVERE, TAG, "Connot send media control signal");
+                }
+                break;
+
+            case ControlsFragment.MEDIA_STOP_BUTTON:
+                try {
+                    getCurrentProxyObj().getInterface(PCInterface.class).mediaControlStop();
+                } catch (BusException e) {
+                    log(Level.SEVERE, TAG, "Connot send media control signal");
+                }
+                break;
+
+            case ControlsFragment.MEDIA_NEXT_BUTTON:
+                try {
+                    getCurrentProxyObj().getInterface(PCInterface.class).mediaControlNext();
+                } catch (BusException e) {
+                    log(Level.SEVERE, TAG, "Connot send media control signal");
+                }
+                break;
+
+            case ControlsFragment.MEDIA_PREVIOUS_BUTTON:
+                try {
+                    getCurrentProxyObj().getInterface(PCInterface.class).mediaControlPrevious();
+                } catch (BusException e) {
+                    log(Level.SEVERE, TAG, "Connot send media control signal");
+                }
+                break;
+
+            case ControlsFragment.MOUSE_MOVE:
+                try {
+                    getCurrentProxyObj().getInterface(PCInterface.class).mouseMove(msg.arg1, msg.arg2);
+                } catch (BusException e) {
+                    log(Level.SEVERE, TAG, "Connot send media control signal");
+                }
+                break;
+
+            case ControlsFragment.MOUSE_LEFT_CLICK:
+                try {
+                    getCurrentProxyObj().getInterface(PCInterface.class).mouseLeftClick();
+                } catch (BusException e) {
+                    log(Level.SEVERE, TAG, "Connot send media control signal");
+                }
+                break;
+
+            case ControlsFragment.MOUSE_RIGHT_CLICK:
+                try {
+                    getCurrentProxyObj().getInterface(PCInterface.class).mouseRightClick();
+                } catch (BusException e) {
+                    log(Level.SEVERE, TAG, "Connot send media control signal");
+                }
+                break;
+
+            case ControlsFragment.KEY_PRESSED:
+                try {
+                    getCurrentProxyObj().getInterface(PCInterface.class).keyPressed(msg.arg1);
+                } catch (BusException e) {
+                    log(Level.SEVERE, TAG, "Connot send media control signal");
+                }
+                break;
+
+            case ControlsFragment.SLIDESHOW_START:
+                try {
+                    getCurrentProxyObj().getInterface(PCInterface.class).slideshowStart();
+                } catch (BusException e) {
+                    log(Level.SEVERE, TAG, "Connot send media control signal");
+                }
+                break;
+
+            case ControlsFragment.SLIDESHOW_STOP:
+                try {
+                    getCurrentProxyObj().getInterface(PCInterface.class).slideshowStop();
+                } catch (BusException e) {
+                    log(Level.SEVERE, TAG, "Connot send media control signal");
+                }
+                break;
+
+            case ControlsFragment.NEXT_SLIDE:
+                try {
+                    getCurrentProxyObj().getInterface(PCInterface.class).nextSlide();
+                } catch (BusException e) {
+                    log(Level.SEVERE, TAG, "Connot send media control signal");
+                }
+                break;
+
+            case ControlsFragment.PREV_SLIDE:
+                try {
+                    getCurrentProxyObj().getInterface(PCInterface.class).previousSlide();
+                } catch (BusException e) {
+                    log(Level.SEVERE, TAG, "Connot send media control signal");
+                }
+                break;
+        }
+
+    }
+
+    private void processMobileMessage(Message msg) {
+
+    }
+
+    private void processBoardMessage(Message msg) {
+
+    }
+
+    private ProxyBusObject getCurrentProxyObj() {
+        return map.get(deviceAdapter.getSelectedItem());
+    }
+
     private void doDeviceDiscovered(int id, ProxyBusObject proxyBusObject) {
         String busName = proxyBusObject.getBusName();
         DeviceAdapterItem.DeviceType deviceType = DeviceAdapterItem.DeviceType.valueOf(id);
@@ -184,7 +359,7 @@ public class AllJoynService extends Service {
             deviceOS = properties.get("DeviceOS").getObject(String.class);
 
         } catch (BusException e) {
-            GFLogger.log(Level.SEVERE, TAG, "Cannot get device info.");
+            log(Level.SEVERE, TAG, "Cannot get device info.");
             deviceName = "UNKNOWN";
             deviceOS = "UNKNOWN";
         }
@@ -217,13 +392,19 @@ public class AllJoynService extends Service {
     }
 
     public void setDeviceAdapter(DeviceAdapter deviceAdapter) {
-        deviceAdapter.addAll(map.keySet());
-        this.deviceAdapter = deviceAdapter;
+        if (this.deviceAdapter != deviceAdapter) {
+            deviceAdapter.addAll(map.keySet());
+            this.deviceAdapter = deviceAdapter;
+        }
     }
 
     public class AllJoynBinder extends Binder {
         public AllJoynService getInstance() {
             return AllJoynService.this;
+        }
+
+        public Handler getHandler() {
+            return mBackgroundHandler;
         }
     }
 }

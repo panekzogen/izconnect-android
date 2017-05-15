@@ -1,17 +1,7 @@
 package org.taom.izconnect.network;
 
-import org.alljoyn.bus.AboutDataListener;
-import org.alljoyn.bus.AboutListener;
-import org.alljoyn.bus.AboutObj;
-import org.alljoyn.bus.BusAttachment;
-import org.alljoyn.bus.BusObject;
-import org.alljoyn.bus.Mutable;
-import org.alljoyn.bus.Observer;
-import org.alljoyn.bus.SessionOpts;
-import org.alljoyn.bus.SessionPortListener;
-import org.alljoyn.bus.Status;
+import org.alljoyn.bus.*;
 import org.taom.izconnect.network.interfaces.BoardInterface;
-import org.taom.izconnect.network.interfaces.DeviceInfoInterface;
 import org.taom.izconnect.network.interfaces.MobileInterface;
 import org.taom.izconnect.network.interfaces.PCInterface;
 
@@ -167,12 +157,18 @@ public abstract class AbstractNetworkService {
         }
     }
 
+    public String getBusName() {
+        return mBus.getUniqueName();
+    }
+
     protected abstract AboutDataListener getAboutData();
 
     protected abstract AboutListener getAboutListener();
 
     protected abstract Observer.Listener getMobileListener();
+
     protected abstract Observer.Listener getPCListener();
+
     protected abstract Observer.Listener getBoardListener();
 
     protected abstract String[] getInterestingInterfaces();

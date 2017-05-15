@@ -1,33 +1,212 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/pc_controls"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="org.taom.android.MainActivity">
 
-    <TextView
-        android:text="Volume"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:id="@+id/volumeTextView"
-        android:textSize="@dimen/control_name_size"
-        android:textColor="@color/text_color"/>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ScrollView01"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
 
-    <SeekBar
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/volumeSeekBar"
-        android:layout_below="@+id/volumeTextView"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true" />
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/pc_controls"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:context="org.taom.android.MainActivity">
 
-</RelativeLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            android:layout_marginBottom="@dimen/separator_padding"
+            android:layout_alignParentStart="true"
+            android:id="@+id/view1"/>
+
+        <TextView
+            android:text="Volume"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/volumeTextView"
+            android:textSize="@dimen/control_name_size"
+            android:textColor="@color/text_color"
+            android:paddingTop="5dp"
+            android:paddingBottom="3dp"
+            android:paddingLeft="10dp"
+            android:layout_below="@id/view1"
+            android:layout_alignParentStart="true" />
+
+        <SeekBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/volumeSeekBar"
+            android:max="65535"
+            android:layout_below="@id/volumeTextView"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            android:layout_alignParentStart="true"
+            android:layout_marginBottom="@dimen/separator_padding"
+            android:layout_marginTop="@dimen/separator_padding"
+            android:layout_below="@id/volumeSeekBar"
+            android:id="@+id/view2"/>
+
+        <ImageButton
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/next"
+            android:id="@+id/nextButton"
+            android:background="@null"
+            android:layout_marginEnd="20dp"
+            android:layout_alignTop="@+id/stopButton"
+            android:layout_alignParentEnd="true" />
+
+        <ImageButton
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/previous"
+            android:id="@+id/previousButton"
+            android:background="@null"
+            android:layout_marginStart="20dp"
+            android:layout_alignTop="@+id/stopButton"
+            android:layout_alignParentStart="true" />
+
+        <ImageButton
+            android:layout_width="80dp"
+            android:layout_height="70dp"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/playpause"
+            android:id="@+id/playButton"
+            android:background="@null"
+            android:layout_alignTop="@+id/view2"
+            android:layout_marginTop="10dp"
+            android:layout_toEndOf="@id/previousButton"
+            android:layout_marginLeft="20dp"/>
+
+        <ImageButton
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/stop"
+            android:id="@+id/stopButton"
+            android:background="@null"
+            android:layout_marginTop="10dp"
+            android:layout_below="@id/view2"
+            android:layout_toStartOf="@+id/nextButton"
+            android:layout_marginRight="20dp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            android:id="@+id/view3"
+            android:layout_below="@id/stopButton"
+            android:layout_marginBottom="@dimen/separator_padding"
+            android:layout_marginTop="@dimen/separator_padding"
+            android:layout_alignParentStart="true" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            android:id="@+id/view4"
+            android:layout_marginTop="25dp"
+            android:layout_below="@id/view3"
+            android:layout_marginBottom="@dimen/separator_padding"
+            android:layout_alignParentStart="true" />
+
+        <Button
+            android:text="Mouse control"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_below="@id/view4"
+            android:layout_alignParentStart="true"
+            android:id="@+id/mouseControl"
+            android:layout_alignParentEnd="true"
+            android:background="@null"
+            android:textAlignment="textStart"
+            android:paddingLeft="20dp"/>
+
+        <Button
+            android:text="Keyboard control"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:id="@+id/keyboardControl"
+            android:background="@null"
+            android:textAlignment="textStart"
+            android:paddingLeft="20dp"
+            android:layout_below="@id/mouseControl"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            android:id="@+id/view5"
+            android:layout_below="@id/keyboardControl"
+            android:layout_marginBottom="@dimen/separator_padding"
+            android:layout_marginTop="@dimen/separator_padding"
+            android:layout_alignParentStart="true" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            android:id="@+id/view6"
+            android:layout_below="@id/view5"
+            android:layout_marginBottom="@dimen/separator_padding"
+            android:layout_marginTop="25dp" />
+
+        <ImageButton
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/stopslideshow"
+            android:id="@+id/stopSlideShow"
+            android:background="@null"
+            android:layout_marginStart="20dp"
+            android:layout_below="@id/view6"
+            android:layout_toEndOf="@+id/playButton" />
+
+        <ImageButton
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/prevslide"
+            android:id="@+id/prevSlide"
+            android:background="@null"
+            android:layout_alignTop="@+id/stopSlideShow"
+            android:layout_alignStart="@+id/previousButton" />
+
+        <ImageButton
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/nextslide"
+            android:id="@+id/nextSlide"
+            android:background="@null"
+            android:layout_alignTop="@+id/stopSlideShow"
+            android:layout_alignEnd="@+id/nextButton" />
+
+        <ImageButton
+            android:layout_width="80dp"
+            android:layout_height="70dp"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/slidehow"
+            android:id="@+id/startSlideShow"
+            android:background="@null"
+            android:layout_alignTop="@+id/view6"
+            android:layout_toStartOf="@+id/stopSlideShow" />
+
+    </RelativeLayout>
+</ScrollView>

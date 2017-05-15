@@ -5,7 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.provider.Settings;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
@@ -29,14 +31,25 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private Intent service;
-    private AllJoynService allJoynService;
+    private Handler serviceHandler;
     private DeviceAdapter deviceAdapter;
+    private ViewPager viewPager;
 
     private boolean mBound = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        ComponentName cn = new ComponentName(getApplicationContext(), NotificationService.class);
+        String flat = Settings.Secure.getString(getApplicationContext().getContentResolver(), "enabled_notification_listeners");
+        final boolean enabled = flat != null && flat.contains(cn.flattenToString());
+
+        if (!enabled) {
+            Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
+            startActivity(intent);
+        }
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -50,7 +63,6 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-
         deviceAdapter = new DeviceAdapter();
         deviceAdapter.setUiUpdater(new UIUpdater() {
             @Override
@@ -59,40 +71,28 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        final ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
-        final FragmentPagerAdapterImpl fragmentPagerAdapter = new FragmentPagerAdapterImpl(getSupportFragmentManager(), deviceAdapter);
-        fragmentPagerAdapter.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                view.setSelected(true);
-                deviceAdapter.setSelectedItem(position);
-                fragmentPagerAdapter.notifyDataSetChanged();
-                viewPager.setCurrentItem(FragmentPagerAdapterImpl.CONTROLS_FRAGMENT_POSITION);
-            }
-        });
-        viewPager.setAdapter(fragmentPagerAdapter);
-
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
-        tabLayout.setupWithViewPager(viewPager);
-
         service = new Intent(this, AllJoynService.class);
         startService(service);
+        ((IZConnectApplication)getApplication()).setService(service);
     }
 
     @Override
     protected void onStart() {
         bindService(service, mConnection, Context.BIND_AUTO_CREATE);
         super.onStart();
+        System.out.println("start");
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        System.out.println("resume");
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        System.out.println("pause");
     }
 
     @Override
@@ -112,15 +112,35 @@ public class MainActivity extends AppCompatActivity
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
-            allJoynService = ((AllJoynService.AllJoynBinder) service).getInstance();
-            allJoynService.setDeviceAdapter(deviceAdapter);
+            AllJoynService.AllJoynBinder binder = ((AllJoynService.AllJoynBinder) service);
+            binder.getInstance().setDeviceAdapter(deviceAdapter);
+            serviceHandler = binder.getHandler();
+
+            viewPager = (ViewPager) findViewById(R.id.pager);
+            final FragmentPagerAdapterImpl fragmentPagerAdapter = new FragmentPagerAdapterImpl(getSupportFragmentManager(), deviceAdapter, serviceHandler);
+            fragmentPagerAdapter.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    view.setSelected(true);
+                    deviceAdapter.setSelectedItem(position);
+                    fragmentPagerAdapter.notifyDataSetChanged();
+                    viewPager.setCurrentItem(FragmentPagerAdapterImpl.CONTROLS_FRAGMENT_POSITION);
+                }
+            });
+            viewPager.setAdapter(fragmentPagerAdapter);
+
+            TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+            tabLayout.setupWithViewPager(viewPager);
+
+            if (deviceAdapter.getSelectedItem() != null) {
+                viewPager.setCurrentItem(FragmentPagerAdapterImpl.CONTROLS_FRAGMENT_POSITION);
+            }
+
             mBound = true;
-            System.out.println("hi im on bind");
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            allJoynService.setDeviceAdapter(null);
             mBound = false;
         }
     };

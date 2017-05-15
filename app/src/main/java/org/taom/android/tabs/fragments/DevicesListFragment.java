@@ -25,7 +25,7 @@ public class DevicesListFragment extends Fragment {
                 devicesList.setOnItemClickListener(onItemClickListener);
             }
         }
-        System.out.println("Im fragment create");
+        System.out.println("Im devices fragment create");
         return rootView;
     }
 

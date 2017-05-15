@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Keyboard xmlns:android="http://schemas.android.com/apk/res/android"
+    android:keyWidth="33%p"
+    android:horizontalGap="0px"
+    android:verticalGap="0px"
+    android:keyHeight="17%p"
+    >
+    <Row>
+        <Key android:codes="144" android:keyLabel="Num lk" android:keyWidth="20%p" android:keyEdgeFlags="left"/>
+        <Key android:codes="111" android:keyLabel="/" android:keyWidth="20%p" />
+        <Key android:codes="106" android:keyLabel="*" android:keyWidth="20%p" />
+        <Key android:codes="109" android:keyLabel="-" android:keyWidth="20%p" />
+        <Key android:codes="107" android:keyLabel="+" android:keyWidth="20%p" android:keyEdgeFlags="right"/>
+    </Row>
+    <Row>
+        <Key android:codes="103" android:keyLabel="7" android:keyEdgeFlags="left"/>
+        <Key android:codes="104" android:keyLabel="8"/>
+        <Key android:codes="105" android:keyLabel="9" android:keyEdgeFlags="right"/>
+    </Row>
+    <Row>
+        <Key android:codes="100" android:keyLabel="4" android:keyEdgeFlags="left"/>
+        <Key android:codes="101" android:keyLabel="5"/>
+        <Key android:codes="102" android:keyLabel="6" android:keyEdgeFlags="right"/>
+    </Row>
+    <Row>
+        <Key android:codes="97" android:keyLabel="1" android:keyEdgeFlags="left"/>
+        <Key android:codes="98" android:keyLabel="2"/>
+        <Key android:codes="99" android:keyLabel="3" android:keyEdgeFlags="right"/>
+    </Row>
+    <Row android:rowEdgeFlags="bottom">
+        <Key android:codes="96" android:keyLabel="0" android:keyWidth="66%p"  android:keyEdgeFlags="left"/>
+        <Key android:codes="190" android:keyLabel="." android:keyWidth="33%p" android:keyEdgeFlags="right"/>
+    </Row>
+</Keyboard>

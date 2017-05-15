@@ -1,5 +1,6 @@
 package org.taom.android.tabs;
 
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -18,11 +19,13 @@ public class FragmentPagerAdapterImpl extends FragmentPagerAdapter {
     private static final CharSequence CONTROLS_TITLE = "Controls";
 
     private DeviceAdapter deviceAdapter;
+    private Handler handler;
     private AdapterView.OnItemClickListener onItemClickListener;
 
-    public FragmentPagerAdapterImpl(FragmentManager fm, DeviceAdapter deviceAdapter) {
+    public FragmentPagerAdapterImpl(FragmentManager fm, DeviceAdapter deviceAdapter, Handler handler) {
         super(fm);
         this.deviceAdapter = deviceAdapter;
+        this.handler = handler;
     }
 
     @Override
@@ -34,9 +37,9 @@ public class FragmentPagerAdapterImpl extends FragmentPagerAdapter {
                 devicesListFragment.setOnItemClickListener(onItemClickListener);
                 return devicesListFragment;
             case CONTROLS_FRAGMENT_POSITION:
-                DeviceAdapterItem selectedItem = deviceAdapter.getSelectedItem();
                 ControlsFragment controlsFragment = new ControlsFragment();
-                controlsFragment.setSelectedItem(selectedItem);
+                controlsFragment.setDeviceAdapter(deviceAdapter);
+                controlsFragment.setHandler(handler);
                 return controlsFragment;
         }
         return null;

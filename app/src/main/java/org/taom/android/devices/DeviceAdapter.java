@@ -143,4 +143,13 @@ public class DeviceAdapter extends BaseAdapter implements Serializable {
             add(item);
         }
     }
+
+    public DeviceAdapterItem findByBusName(String busName) {
+        for (DeviceAdapterItem deviceAdapterItem : list) {
+            if (deviceAdapterItem.getBusName().equals(busName)) {
+                return deviceAdapterItem;
+            }
+        }
+        return null;
+    }
 }
