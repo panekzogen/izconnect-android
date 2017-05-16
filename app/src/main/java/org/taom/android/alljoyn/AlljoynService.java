@@ -40,7 +40,6 @@ public class AllJoynService extends Service {
     private AndroidNetworkService mNetworkService;
     private MobileServiceImpl mobileService;
     private BackgroundHandler mBackgroundHandler;
-    private NotificationService notificationService;
     private Set<String> subscribers = Collections.synchronizedSet(new HashSet<String>());
 
     private DeviceAdapter deviceAdapter;
@@ -58,7 +57,6 @@ public class AllJoynService extends Service {
         mBackgroundHandler = new BackgroundHandler(busThread.getLooper());
 
         startForeground(NOTIFICATION_ID, createNotification());
-        notificationService = new NotificationService(mBackgroundHandler);
 
         mobileService = new MobileServiceImpl(subscribers, deviceAdapter);
         mNetworkService = new AndroidNetworkService(mBackgroundHandler);
@@ -182,7 +180,7 @@ public class AllJoynService extends Service {
                             case PC:
                                 PCInterface pcInterface = proxyBusObject.getInterface(PCInterface.class);
                                 try {
-                                    pcInterface.notify(titleAndText[0].trim(), titleAndText[1].trim());
+                                    pcInterface.notify(device.getDeviceName(), titleAndText[0].trim(), titleAndText[1].trim());
                                 } catch (BusException e) {
                                     log(Level.SEVERE, TAG, "Cannot send notification");
                                 }

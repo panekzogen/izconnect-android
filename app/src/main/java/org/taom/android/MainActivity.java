@@ -1,8 +1,10 @@
 package org.taom.android;
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
@@ -26,6 +28,9 @@ import org.taom.android.devices.DeviceAdapter;
 import org.taom.android.devices.DeviceAdapterItem;
 import org.taom.android.devices.UIUpdater;
 import org.taom.android.tabs.FragmentPagerAdapterImpl;
+import org.taom.izconnect.network.GFLogger;
+
+import java.util.logging.Level;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -33,6 +38,7 @@ public class MainActivity extends AppCompatActivity
     private Intent service;
     private Handler serviceHandler;
     private DeviceAdapter deviceAdapter;
+    private NotificationReceiver notificationReceiver;
     private ViewPager viewPager;
 
     private boolean mBound = false;
@@ -71,6 +77,11 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        notificationReceiver = new NotificationReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(NotificationService.NOTIFICATION_BROADCAST_ACTION);
+        registerReceiver(notificationReceiver, filter);
+
         service = new Intent(this, AllJoynService.class);
         startService(service);
         ((IZConnectApplication)getApplication()).setService(service);
@@ -107,6 +118,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        unregisterReceiver(notificationReceiver);
     }
 
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -144,6 +156,15 @@ public class MainActivity extends AppCompatActivity
             mBound = false;
         }
     };
+
+    class NotificationReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String notification = intent.getStringExtra(NotificationService.NOTIFICATION_EXTRA);
+            serviceHandler.sendMessage(serviceHandler.obtainMessage(NotificationService.NOTIFY_SUBSCRIBERS, notification));
+        }
+    }
+
 
     @Override
     public void onBackPressed() {
