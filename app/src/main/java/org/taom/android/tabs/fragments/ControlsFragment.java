@@ -1,6 +1,10 @@
 package org.taom.android.tabs.fragments;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcel;
@@ -9,8 +13,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
+import android.widget.Switch;
+import android.widget.TextView;
 
 import org.taom.android.KeyboardActivity;
 import org.taom.android.MainActivity;
@@ -20,6 +27,7 @@ import org.taom.android.devices.DeviceAdapter;
 import org.taom.android.devices.DeviceAdapterItem;
 
 import java.io.Serializable;
+import java.net.URISyntaxException;
 
 public class ControlsFragment extends Fragment {
     private DeviceAdapter deviceAdapter;
@@ -38,6 +46,13 @@ public class ControlsFragment extends Fragment {
     public static final int SLIDESHOW_STOP = 111;
     public static final int NEXT_SLIDE = 112;
     public static final int PREV_SLIDE = 113;
+
+    public static final int LIGHT_TOGGLE = 201;
+    public static final int AUTO_MODE_TOGGLE = 202;
+
+    public static final int FILE_SEND = 301;
+    private static final int FILE_SELECT_CODE = 1000;
+    private String filePath;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -79,11 +94,25 @@ public class ControlsFragment extends Fragment {
     }
 
     private void bindBoardView(View rootView) {
+        Switch lightSwtich  = (Switch) rootView.findViewById(R.id.lightSwitch);
+        lightSwtich.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                handler.sendMessage(handler.obtainMessage(LIGHT_TOGGLE, isChecked));
+            }
+        });
 
+
+        final Switch autoModeSwitch = (Switch) rootView.findViewById(R.id.autoModeSwitch);
+        autoModeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                handler.sendMessage(handler.obtainMessage(AUTO_MODE_TOGGLE, isChecked));
+            }
+        });
     }
-
     private void bindMobileView(View rootView) {
-
+        setUpFileChooser(rootView);
     }
 
     private void bindPCView(View rootView) {
@@ -184,5 +213,79 @@ public class ControlsFragment extends Fragment {
                 handler.sendMessage(handler.obtainMessage(PREV_SLIDE));
             }
         });
+
+        setUpFileChooser(rootView);
+    }
+
+    private void setUpFileChooser(View rootView) {
+        TextView filePathTextView = (TextView) rootView.findViewById(R.id.filePath);
+        if (filePath != null) {
+            filePathTextView.setText(filePath);
+        }
+
+
+        Button selectFileButton = (Button) rootView.findViewById(R.id.chooseButton);
+        selectFileButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("*/*");
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+
+                try {
+                    startActivityForResult(
+                            Intent.createChooser(intent, "Select a File to send"),
+                            FILE_SELECT_CODE);
+                } catch (android.content.ActivityNotFoundException ex) {
+                    // Potentially direct the user to the Market with a Dialog
+                }
+            }
+        });
+
+
+        Button sendFileButton = (Button) rootView.findViewById(R.id.sendButton);
+        sendFileButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (filePath != null && filePath.length() > 0) {
+                    handler.sendMessage(handler.obtainMessage(FILE_SEND, filePath));
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case FILE_SELECT_CODE:
+                if (resultCode == Activity.RESULT_OK) {
+                    Uri uri = data.getData();
+                    filePath = getPath(getContext(), uri);
+                }
+                break;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    public static String getPath(Context context, Uri uri) {
+        if ("content".equalsIgnoreCase(uri.getScheme())) {
+            String[] projection = { "_data" };
+            Cursor cursor = null;
+
+            try {
+                cursor = context.getContentResolver().query(uri, projection, null, null, null);
+                int column_index = cursor.getColumnIndexOrThrow("_data");
+                if (cursor.moveToFirst()) {
+                    return cursor.getString(column_index);
+                }
+            } catch (Exception e) {
+                // Eat it
+            }
+        }
+        else if ("file".equalsIgnoreCase(uri.getScheme())) {
+            return uri.getPath();
+        }
+
+        return null;
     }
 }

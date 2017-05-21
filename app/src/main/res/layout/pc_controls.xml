@@ -18,12 +18,24 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:context="org.taom.android.MainActivity">
 
+        <TextView
+            android:text="Media"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/mediaLabel"
+            android:textSize="@dimen/header_name_size"
+            android:textColor="@color/text_color"
+            android:paddingTop="5dp"
+            android:paddingLeft="5dp"
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="10dp" />
+
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"
             android:layout_marginBottom="@dimen/separator_padding"
-            android:layout_alignParentStart="true"
+            android:layout_below="@id/mediaLabel"
             android:id="@+id/view1"/>
 
         <TextView
@@ -114,13 +126,24 @@
             android:layout_marginTop="@dimen/separator_padding"
             android:layout_alignParentStart="true" />
 
+        <TextView
+            android:text="Input"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/inputControls"
+            android:textSize="@dimen/header_name_size"
+            android:textColor="@color/text_color"
+            android:layout_marginTop="10dp"
+            android:paddingTop="5dp"
+            android:paddingLeft="5dp"
+            android:layout_below="@id/view3" />
+
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"
             android:id="@+id/view4"
-            android:layout_marginTop="25dp"
-            android:layout_below="@id/view3"
+            android:layout_below="@id/inputControls"
             android:layout_marginBottom="@dimen/separator_padding"
             android:layout_alignParentStart="true" />
 
@@ -158,14 +181,25 @@
             android:layout_marginTop="@dimen/separator_padding"
             android:layout_alignParentStart="true" />
 
+        <TextView
+            android:text="Slideshow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/slideshowControls"
+            android:textSize="@dimen/header_name_size"
+            android:textColor="@color/text_color"
+            android:layout_marginTop="10dp"
+            android:paddingTop="5dp"
+            android:paddingLeft="5dp"
+            android:layout_below="@id/view5" />
+
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"
             android:id="@+id/view6"
-            android:layout_below="@id/view5"
-            android:layout_marginBottom="@dimen/separator_padding"
-            android:layout_marginTop="25dp" />
+            android:layout_below="@id/slideshowControls"
+            android:layout_marginBottom="@dimen/separator_padding" />
 
         <ImageButton
             android:layout_width="50dp"
@@ -207,6 +241,63 @@
             android:background="@null"
             android:layout_alignTop="@+id/view6"
             android:layout_toStartOf="@+id/stopSlideShow" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            android:id="@+id/view7"
+            android:layout_below="@id/startSlideShow"
+            android:layout_marginBottom="@dimen/separator_padding"
+            android:layout_marginTop="@dimen/separator_padding"
+            android:layout_alignParentStart="true" />
+
+        <TextView
+            android:text="Advanced"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/advanced"
+            android:textSize="@dimen/header_name_size"
+            android:textColor="@color/text_color"
+            android:layout_marginTop="10dp"
+            android:paddingTop="5dp"
+            android:paddingLeft="5dp"
+            android:layout_below="@id/view7" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            android:id="@+id/view8"
+            android:layout_below="@id/advanced"
+            android:layout_marginBottom="@dimen/separator_padding" />
+
+        <TextView
+            android:text="Select the file at first"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/control_name_size"
+            android:textColor="@color/text_color"
+            android:layout_below="@id/view8"
+            android:id="@+id/filePath"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentStart="true" />
+
+        <Button
+            android:text="Select file"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/chooseButton"
+            android:layout_below="@+id/filePath"
+            android:layout_alignParentStart="true" />
+
+        <Button
+            android:text="Send"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/sendButton"
+            android:layout_alignTop="@+id/chooseButton"
+            android:layout_alignParentEnd="true" />
 
     </RelativeLayout>
 </ScrollView>

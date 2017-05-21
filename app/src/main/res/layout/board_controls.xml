@@ -13,7 +13,7 @@
     tools:context="org.taom.android.MainActivity">
 
     <Switch
-        android:text="Turn on/off light"
+        android:text="Turn light"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
@@ -21,5 +21,20 @@
         android:id="@+id/lightSwitch"
         android:layout_alignParentStart="true"
         android:textSize="@dimen/control_name_size"
-        android:textColor="@color/text_color"/>
+        android:textColor="@color/text_color"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="30dp"/>
+
+    <Switch
+        android:text="Auto mode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/autoModeSwitch"
+        android:textSize="@dimen/control_name_size"
+        android:textColor="@color/text_color"
+        android:layout_below="@+id/lightSwitch"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="30dp" />
+
 </RelativeLayout>

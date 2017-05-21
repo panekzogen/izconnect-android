@@ -60,4 +60,8 @@ public interface PCInterface extends DeviceInfoInterface {
 
     @BusMethod
     void previousSlide() throws BusException;
+
+    @BusMethod
+    void fileData(String filename, byte[] data) throws BusException;
+
 }

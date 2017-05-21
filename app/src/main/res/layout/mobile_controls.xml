@@ -13,21 +13,31 @@
     tools:context="org.taom.android.MainActivity">
 
     <TextView
-        android:text="Volume"
+        android:text="Select the file at first"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
         android:textSize="@dimen/control_name_size"
         android:textColor="@color/text_color"
-        android:id="@+id/textView3" />
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/filePath"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="10dp" />
 
-    <SeekBar
+    <Button
+        android:text="Select file"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/chooseButton"
+        android:layout_below="@+id/filePath"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:text="Send"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/textView3"
-        android:layout_alignParentStart="true"
-        android:id="@+id/seekBar"
+        android:id="@+id/sendButton"
+        android:layout_alignTop="@+id/chooseButton"
         android:layout_alignParentEnd="true" />
 
 </RelativeLayout>

@@ -13,9 +13,12 @@ public interface MobileInterface extends DeviceInfoInterface {
     void subscribe(String busName) throws BusException;
 
     @BusMethod
-    void notify(String sender, String notification) throws BusException;
+    void notify(String devicename, String sender, String notification) throws BusException;
 
     @BusMethod
     void unsubscribe(String busName) throws BusException;
+
+    @BusMethod
+    void fileData(String filename, byte[] data) throws BusException;
 
 }

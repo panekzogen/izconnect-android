@@ -4,11 +4,13 @@ import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.support.annotation.BoolRes;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 
@@ -20,9 +22,12 @@ import org.taom.android.R;
 import org.taom.android.devices.DeviceAdapter;
 import org.taom.android.devices.DeviceAdapterItem;
 import org.taom.android.tabs.fragments.ControlsFragment;
+import org.taom.izconnect.network.interfaces.BoardInterface;
 import org.taom.izconnect.network.interfaces.MobileInterface;
 import org.taom.izconnect.network.interfaces.PCInterface;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -36,6 +41,7 @@ import static org.taom.izconnect.network.GFLogger.*;
 public class AllJoynService extends Service {
     private static final String TAG = "AllJoynService";
     private static final int NOTIFICATION_ID = 0xdefaced;
+    private static final int MAX_BYTES = 114500;
 
     private AndroidNetworkService mNetworkService;
     private MobileServiceImpl mobileService;
@@ -58,7 +64,7 @@ public class AllJoynService extends Service {
 
         startForeground(NOTIFICATION_ID, createNotification());
 
-        mobileService = new MobileServiceImpl(subscribers, deviceAdapter);
+        mobileService = new MobileServiceImpl(subscribers);
         mNetworkService = new AndroidNetworkService(mBackgroundHandler);
 
         mBackgroundHandler.connect();
@@ -180,7 +186,7 @@ public class AllJoynService extends Service {
                             case PC:
                                 PCInterface pcInterface = proxyBusObject.getInterface(PCInterface.class);
                                 try {
-                                    pcInterface.notify(device.getDeviceName(), titleAndText[0].trim(), titleAndText[1].trim());
+                                    pcInterface.notify(mobileService.getDeviceName(), titleAndText[0].trim(), titleAndText[1].trim());
                                 } catch (BusException e) {
                                     log(Level.SEVERE, TAG, "Cannot send notification");
                                 }
@@ -188,7 +194,7 @@ public class AllJoynService extends Service {
                             case MOBILE:
                                 MobileInterface mobileInterface = proxyBusObject.getInterface(MobileInterface.class);
                                 try {
-                                    mobileInterface.notify(titleAndText[0].trim(), titleAndText[1].trim());
+                                    mobileInterface.notify(mobileService.getDeviceName(), titleAndText[0].trim(), titleAndText[1].trim());
                                 } catch (BusException e) {
                                     log(Level.SEVERE, TAG, "Cannot send notification");
                                 }
@@ -329,16 +335,110 @@ public class AllJoynService extends Service {
                     log(Level.SEVERE, TAG, "Connot send media control signal");
                 }
                 break;
+
+            case ControlsFragment.FILE_SEND:
+                PCInterface pcInterface = getCurrentProxyObj().getInterface(PCInterface.class);
+
+                System.out.println((String) msg.obj);
+                File file = new File((String) msg.obj);
+                if (!file.exists())
+                    break;
+
+                System.out.println(file);
+                try {
+                    FileInputStream in = new FileInputStream(file);
+                    int length = (int) file.length();
+                    byte[] tempBytes;
+                    int numRead = 0;
+                    int numChunks = length / MAX_BYTES + (length % MAX_BYTES == 0 ? 0 : 1);
+                    int maxProgress = numChunks;
+                    for (int i = 0; i < numChunks; i++) {
+                        tempBytes = null;
+                        int offset = 0;
+                        numRead = 0;
+                        if (MAX_BYTES > length) {
+                            tempBytes = new byte[length];
+                        } else {
+                            tempBytes = new byte[MAX_BYTES];
+                        }
+                        while (offset < tempBytes.length && (numRead = in.read(tempBytes, 0, tempBytes.length - offset)) >= 0) {
+                            offset += numRead;
+                        }
+                        length -= MAX_BYTES;
+                        pcInterface.fileData(file.getName(), tempBytes);
+                    }
+                    in.close();
+                    pcInterface.fileData(file.getName(), new byte[0]);
+                } catch (Exception e) {
+                    log(Level.SEVERE, TAG, "Connot send file");
+                }
+
+                break;
         }
 
     }
 
     private void processMobileMessage(Message msg) {
+        switch (msg.what) {
+            case ControlsFragment.FILE_SEND:
+                MobileInterface mobileInterface = getCurrentProxyObj().getInterface(MobileInterface.class);
 
+                System.out.println((String) msg.obj);
+                File file = new File((String) msg.obj);
+                if (!file.exists())
+                    break;
+
+                System.out.println(file);
+                try {
+                    FileInputStream in = new FileInputStream(file);
+                    int length = (int) file.length();
+                    byte[] tempBytes;
+                    int numRead = 0;
+                    int numChunks = length / MAX_BYTES + (length % MAX_BYTES == 0 ? 0 : 1);
+                    int maxProgress = numChunks;
+                    for (int i = 0; i < numChunks; i++) {
+                        tempBytes = null;
+                        int offset = 0;
+                        numRead = 0;
+                        if (MAX_BYTES > length) {
+                            tempBytes = new byte[length];
+                        } else {
+                            tempBytes = new byte[MAX_BYTES];
+                        }
+                        while (offset < tempBytes.length && (numRead = in.read(tempBytes, 0, tempBytes.length - offset)) >= 0) {
+                            offset += numRead;
+                        }
+                        length -= MAX_BYTES;
+                        mobileInterface.fileData(file.getName(), tempBytes);
+                    }
+                    in.close();
+                    mobileInterface.fileData(file.getName(), new byte[0]);
+                } catch (Exception e) {
+                    log(Level.SEVERE, TAG, "Connot send file");
+                }
+
+                break;
+        }
     }
 
     private void processBoardMessage(Message msg) {
+        switch (msg.what) {
+            case ControlsFragment.LIGHT_TOGGLE:
+                try {
+                    getCurrentProxyObj().getInterface(BoardInterface.class).setLight((Boolean) msg.obj);
+                } catch (BusException e) {
+                    log(Level.SEVERE, TAG, "Connot send turn on signal");
+                }
+                break;
 
+            case ControlsFragment.AUTO_MODE_TOGGLE:
+                try {
+                    getCurrentProxyObj().getInterface(BoardInterface.class).setAutoMode((Boolean) msg.obj);
+                } catch (BusException e) {
+                    log(Level.SEVERE, TAG, "Connot send auto mode signal");
+                }
+                break;
+        }
     }
 
     private ProxyBusObject getCurrentProxyObj() {
