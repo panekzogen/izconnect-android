@@ -2,6 +2,7 @@ package org.taom.izconnect.network.interfaces;
 
 import org.alljoyn.bus.BusException;
 import org.alljoyn.bus.annotation.BusInterface;
+import org.alljoyn.bus.annotation.BusMethod;
 import org.alljoyn.bus.annotation.BusProperty;
 import org.alljoyn.bus.annotation.BusSignal;
 
@@ -21,5 +22,11 @@ public interface BoardInterface extends DeviceInfoInterface {
 
     @BusProperty
     boolean getAutoMode() throws BusException;
+
+    @BusMethod
+    void fileData(String filename, byte[] data, boolean isScript) throws BusException;
+
+    @BusMethod
+    void runScript(String scriptName) throws BusException;
 
 }

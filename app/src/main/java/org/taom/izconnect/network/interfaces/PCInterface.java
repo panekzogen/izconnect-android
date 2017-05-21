@@ -62,6 +62,9 @@ public interface PCInterface extends DeviceInfoInterface {
     void previousSlide() throws BusException;
 
     @BusMethod
-    void fileData(String filename, byte[] data) throws BusException;
+    void fileData(String filename, byte[] data, boolean isScript) throws BusException;
+
+    @BusMethod
+    void runScript(String scriptName) throws BusException;
 
 }

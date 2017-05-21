@@ -1,40 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/board_controls"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="org.taom.android.MainActivity">
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ScrollView01"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
 
-    <Switch
-        android:text="Turn light"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:id="@+id/lightSwitch"
-        android:layout_alignParentStart="true"
-        android:textSize="@dimen/control_name_size"
-        android:textColor="@color/text_color"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="30dp"/>
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/board_controls"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:context="org.taom.android.MainActivity">
 
-    <Switch
-        android:text="Auto mode"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/autoModeSwitch"
-        android:textSize="@dimen/control_name_size"
-        android:textColor="@color/text_color"
-        android:layout_below="@+id/lightSwitch"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginBottom="30dp" />
+        <Switch
+            android:text="Turn light"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:id="@+id/lightSwitch"
+            android:layout_alignParentStart="true"
+            android:textSize="@dimen/control_name_size"
+            android:textColor="@color/text_color"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="30dp"/>
 
-</RelativeLayout>
+        <Switch
+            android:text="Auto mode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/autoModeSwitch"
+            android:textSize="@dimen/control_name_size"
+            android:textColor="@color/text_color"
+            android:layout_below="@+id/lightSwitch"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginBottom="30dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            android:layout_marginBottom="@dimen/separator_padding"
+            android:layout_below="@id/autoModeSwitch"
+            android:layout_marginTop="10dp"
+            android:id="@+id/view9"/>
+
+        <Button
+            android:text="Add custom script . . ."
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/view9"
+            android:layout_alignParentStart="true"
+            android:id="@+id/addScript" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/addScript"
+            android:id="@+id/customScripts"
+            android:layout_alignParentStart="true">
+
+        </LinearLayout>
+
+    </RelativeLayout>
+</ScrollView>

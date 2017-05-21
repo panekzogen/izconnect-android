@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MobileServiceImpl implements BusObject, MobileInterface {
+    private static final File IZCONNECT_FOLDER = new File(Environment.getExternalStorageDirectory(), "izconnect");
     private Set<String> subscribers;
     private Map<String, FileOutputStream> incomingFiles = new ConcurrentHashMap<>();
 
@@ -52,7 +53,7 @@ public class MobileServiceImpl implements BusObject, MobileInterface {
     }
 
     @Override
-    public void fileData(String filename, byte[] data) throws BusException {
+    public void fileData(String filename, byte[] data, boolean isScript) throws BusException {
         if (data.length == 0) {
             FileOutputStream out = incomingFiles.get(filename);
             if (out != null) {
@@ -65,7 +66,7 @@ public class MobileServiceImpl implements BusObject, MobileInterface {
                 }
             }
         } else {
-            File root = new File(Environment.getExternalStorageDirectory(), "izconnect");
+            File root = new File(IZCONNECT_FOLDER, isScript ? "scripts" : "");
             if(!root.exists()) {
                 root.mkdirs();
             }
@@ -88,6 +89,18 @@ public class MobileServiceImpl implements BusObject, MobileInterface {
             } catch(Exception e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    @Override
+    public void runScript(String scriptName) throws BusException {
+        Runtime rt = Runtime.getRuntime();
+        String scriptPath = new File(IZCONNECT_FOLDER, "scripts/" + scriptName).getAbsolutePath();
+        try {
+            rt.exec(new String[] {"chmod", "+x", scriptPath});
+            rt.exec(scriptPath);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

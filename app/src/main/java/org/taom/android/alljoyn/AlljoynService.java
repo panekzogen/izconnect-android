@@ -231,10 +231,12 @@ public class AllJoynService extends Service {
     private static final int DEVICE_LOST = 9;
 
     private void processPCMessage(Message msg) {
+        PCInterface pcInterface = getCurrentProxyObj().getInterface(PCInterface.class);
+        boolean isScript = false;
         switch (msg.what) {
             case ControlsFragment.VOLUME_CHANGED:
                 try {
-                    getCurrentProxyObj().getInterface(PCInterface.class).setVolume(msg.arg1);
+                    pcInterface.setVolume(msg.arg1);
                 } catch (BusException e) {
                     log(Level.SEVERE, TAG, "Cannot change volume");
                 }
@@ -242,109 +244,108 @@ public class AllJoynService extends Service {
 
             case ControlsFragment.MEDIA_PLAY_BUTTON:
                 try {
-                    getCurrentProxyObj().getInterface(PCInterface.class).mediaControlPlayPause();
+                    pcInterface.mediaControlPlayPause();
                 } catch (BusException e) {
-                    log(Level.SEVERE, TAG, "Connot send media control signal");
+                    log(Level.SEVERE, TAG, "Cannot send media control signal");
                 }
                 break;
 
             case ControlsFragment.MEDIA_STOP_BUTTON:
                 try {
-                    getCurrentProxyObj().getInterface(PCInterface.class).mediaControlStop();
+                    pcInterface.mediaControlStop();
                 } catch (BusException e) {
-                    log(Level.SEVERE, TAG, "Connot send media control signal");
+                    log(Level.SEVERE, TAG, "Cannot send media control signal");
                 }
                 break;
 
             case ControlsFragment.MEDIA_NEXT_BUTTON:
                 try {
-                    getCurrentProxyObj().getInterface(PCInterface.class).mediaControlNext();
+                    pcInterface.mediaControlNext();
                 } catch (BusException e) {
-                    log(Level.SEVERE, TAG, "Connot send media control signal");
+                    log(Level.SEVERE, TAG, "Cannot send media control signal");
                 }
                 break;
 
             case ControlsFragment.MEDIA_PREVIOUS_BUTTON:
                 try {
-                    getCurrentProxyObj().getInterface(PCInterface.class).mediaControlPrevious();
+                    pcInterface.mediaControlPrevious();
                 } catch (BusException e) {
-                    log(Level.SEVERE, TAG, "Connot send media control signal");
+                    log(Level.SEVERE, TAG, "Cannot send media control signal");
                 }
                 break;
 
             case ControlsFragment.MOUSE_MOVE:
                 try {
-                    getCurrentProxyObj().getInterface(PCInterface.class).mouseMove(msg.arg1, msg.arg2);
+                    pcInterface.mouseMove(msg.arg1, msg.arg2);
                 } catch (BusException e) {
-                    log(Level.SEVERE, TAG, "Connot send media control signal");
+                    log(Level.SEVERE, TAG, "Cannot send media control signal");
                 }
                 break;
 
             case ControlsFragment.MOUSE_LEFT_CLICK:
                 try {
-                    getCurrentProxyObj().getInterface(PCInterface.class).mouseLeftClick();
+                    pcInterface.mouseLeftClick();
                 } catch (BusException e) {
-                    log(Level.SEVERE, TAG, "Connot send media control signal");
+                    log(Level.SEVERE, TAG, "Cannot send media control signal");
                 }
                 break;
 
             case ControlsFragment.MOUSE_RIGHT_CLICK:
                 try {
-                    getCurrentProxyObj().getInterface(PCInterface.class).mouseRightClick();
+                    pcInterface.mouseRightClick();
                 } catch (BusException e) {
-                    log(Level.SEVERE, TAG, "Connot send media control signal");
+                    log(Level.SEVERE, TAG, "Cannot send media control signal");
                 }
                 break;
 
             case ControlsFragment.KEY_PRESSED:
                 try {
-                    getCurrentProxyObj().getInterface(PCInterface.class).keyPressed(msg.arg1);
+                    pcInterface.keyPressed(msg.arg1);
                 } catch (BusException e) {
-                    log(Level.SEVERE, TAG, "Connot send media control signal");
+                    log(Level.SEVERE, TAG, "Cannot send media control signal");
                 }
                 break;
 
             case ControlsFragment.SLIDESHOW_START:
                 try {
-                    getCurrentProxyObj().getInterface(PCInterface.class).slideshowStart();
+                    pcInterface.slideshowStart();
                 } catch (BusException e) {
-                    log(Level.SEVERE, TAG, "Connot send media control signal");
+                    log(Level.SEVERE, TAG, "Cannot send media control signal");
                 }
                 break;
 
             case ControlsFragment.SLIDESHOW_STOP:
                 try {
-                    getCurrentProxyObj().getInterface(PCInterface.class).slideshowStop();
+                    pcInterface.slideshowStop();
                 } catch (BusException e) {
-                    log(Level.SEVERE, TAG, "Connot send media control signal");
+                    log(Level.SEVERE, TAG, "Cannot send media control signal");
                 }
                 break;
 
             case ControlsFragment.NEXT_SLIDE:
                 try {
-                    getCurrentProxyObj().getInterface(PCInterface.class).nextSlide();
+                    pcInterface.nextSlide();
                 } catch (BusException e) {
-                    log(Level.SEVERE, TAG, "Connot send media control signal");
+                    log(Level.SEVERE, TAG, "Cannot send media control signal");
                 }
                 break;
 
             case ControlsFragment.PREV_SLIDE:
                 try {
-                    getCurrentProxyObj().getInterface(PCInterface.class).previousSlide();
+                    pcInterface.previousSlide();
                 } catch (BusException e) {
-                    log(Level.SEVERE, TAG, "Connot send media control signal");
+                    log(Level.SEVERE, TAG, "Cannot send media control signal");
                 }
                 break;
 
+            case ControlsFragment.SCRIPT_ADD:
+                isScript = true;
             case ControlsFragment.FILE_SEND:
-                PCInterface pcInterface = getCurrentProxyObj().getInterface(PCInterface.class);
 
-                System.out.println((String) msg.obj);
                 File file = new File((String) msg.obj);
                 if (!file.exists())
                     break;
 
-                System.out.println(file);
                 try {
                     FileInputStream in = new FileInputStream(file);
                     int length = (int) file.length();
@@ -365,30 +366,42 @@ public class AllJoynService extends Service {
                             offset += numRead;
                         }
                         length -= MAX_BYTES;
-                        pcInterface.fileData(file.getName(), tempBytes);
+                        pcInterface.fileData(file.getName(), tempBytes, isScript);
                     }
                     in.close();
-                    pcInterface.fileData(file.getName(), new byte[0]);
+                    pcInterface.fileData(file.getName(), new byte[0], isScript);
                 } catch (Exception e) {
-                    log(Level.SEVERE, TAG, "Connot send file");
+                    log(Level.SEVERE, TAG, "Cannot send file");
+                } finally {
+                    Intent i = new Intent(ControlsFragment.STATUS_BROADCAST_ACTION);
+                    sendBroadcast(i);
                 }
 
+                break;
+
+            case ControlsFragment.SCRIPT_RUN:
+                try {
+                    pcInterface.runScript((String)msg.obj);
+                } catch (BusException e) {
+                    log(Level.SEVERE, TAG, "Cannot start script");
+                }
                 break;
         }
 
     }
 
     private void processMobileMessage(Message msg) {
+        boolean isScript = false;
+        MobileInterface mobileInterface = getCurrentProxyObj().getInterface(MobileInterface.class);
         switch (msg.what) {
+            case ControlsFragment.SCRIPT_ADD:
+                isScript = true;
             case ControlsFragment.FILE_SEND:
-                MobileInterface mobileInterface = getCurrentProxyObj().getInterface(MobileInterface.class);
 
-                System.out.println((String) msg.obj);
                 File file = new File((String) msg.obj);
                 if (!file.exists())
                     break;
 
-                System.out.println(file);
                 try {
                     FileInputStream in = new FileInputStream(file);
                     int length = (int) file.length();
@@ -409,33 +422,92 @@ public class AllJoynService extends Service {
                             offset += numRead;
                         }
                         length -= MAX_BYTES;
-                        mobileInterface.fileData(file.getName(), tempBytes);
+                        mobileInterface.fileData(file.getName(), tempBytes, isScript);
                     }
                     in.close();
-                    mobileInterface.fileData(file.getName(), new byte[0]);
+                    mobileInterface.fileData(file.getName(), new byte[0], isScript);
                 } catch (Exception e) {
-                    log(Level.SEVERE, TAG, "Connot send file");
+                    log(Level.SEVERE, TAG, "Cannot send file");
+                } finally {
+                    Intent i = new Intent(ControlsFragment.STATUS_BROADCAST_ACTION);
+                    sendBroadcast(i);
                 }
 
+                break;
+
+            case ControlsFragment.SCRIPT_RUN:
+                try {
+                    mobileInterface.runScript((String)msg.obj);
+                } catch (BusException e) {
+                    log(Level.SEVERE, TAG, "Cannot start script");
+                }
                 break;
         }
     }
 
     private void processBoardMessage(Message msg) {
+        BoardInterface boardInterface = getCurrentProxyObj().getInterface(BoardInterface.class);
         switch (msg.what) {
             case ControlsFragment.LIGHT_TOGGLE:
                 try {
-                    getCurrentProxyObj().getInterface(BoardInterface.class).setLight((Boolean) msg.obj);
+                    boardInterface.setLight((Boolean) msg.obj);
                 } catch (BusException e) {
-                    log(Level.SEVERE, TAG, "Connot send turn on signal");
+                    log(Level.SEVERE, TAG, "Cannot send turn on signal");
                 }
                 break;
 
             case ControlsFragment.AUTO_MODE_TOGGLE:
                 try {
-                    getCurrentProxyObj().getInterface(BoardInterface.class).setAutoMode((Boolean) msg.obj);
+                    boardInterface.setAutoMode((Boolean) msg.obj);
                 } catch (BusException e) {
-                    log(Level.SEVERE, TAG, "Connot send auto mode signal");
+                    log(Level.SEVERE, TAG, "Cannot send auto mode signal");
+                }
+                break;
+
+            case ControlsFragment.SCRIPT_ADD:
+
+                File file = new File((String) msg.obj);
+                if (!file.exists())
+                    break;
+
+                try {
+                    FileInputStream in = new FileInputStream(file);
+                    int length = (int) file.length();
+                    byte[] tempBytes;
+                    int numRead = 0;
+                    int numChunks = length / MAX_BYTES + (length % MAX_BYTES == 0 ? 0 : 1);
+                    int maxProgress = numChunks;
+                    for (int i = 0; i < numChunks; i++) {
+                        tempBytes = null;
+                        int offset = 0;
+                        numRead = 0;
+                        if (MAX_BYTES > length) {
+                            tempBytes = new byte[length];
+                        } else {
+                            tempBytes = new byte[MAX_BYTES];
+                        }
+                        while (offset < tempBytes.length && (numRead = in.read(tempBytes, 0, tempBytes.length - offset)) >= 0) {
+                            offset += numRead;
+                        }
+                        length -= MAX_BYTES;
+                        boardInterface.fileData(file.getName(), tempBytes, true);
+                    }
+                    in.close();
+                    boardInterface.fileData(file.getName(), new byte[0], true);
+                } catch (Exception e) {
+                    log(Level.SEVERE, TAG, "Cannot send file");
+                } finally {
+                    Intent i = new Intent(ControlsFragment.STATUS_BROADCAST_ACTION);
+                    sendBroadcast(i);
+                }
+
+                break;
+
+            case ControlsFragment.SCRIPT_RUN:
+                try {
+                    boardInterface.runScript((String)msg.obj);
+                } catch (BusException e) {
+                    log(Level.SEVERE, TAG, "Cannot start script");
                 }
                 break;
         }

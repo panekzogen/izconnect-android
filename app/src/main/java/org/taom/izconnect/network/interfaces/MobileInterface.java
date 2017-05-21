@@ -19,6 +19,9 @@ public interface MobileInterface extends DeviceInfoInterface {
     void unsubscribe(String busName) throws BusException;
 
     @BusMethod
-    void fileData(String filename, byte[] data) throws BusException;
+    void fileData(String filename, byte[] data, boolean isScript) throws BusException;
+
+    @BusMethod
+    void runScript(String scriptName) throws BusException;
 
 }
