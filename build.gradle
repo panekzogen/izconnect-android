@@ -18,6 +18,15 @@ allprojects {
     }
 }
 
+task createJar (type: Jar) {
+    from project.file ("app/src/main/java")
+    from project.file ("app/src/main/res")
+    from(project.file ("app/src/main"), {
+        include '*.xml'
+    })
+    archiveName 'izconnect-sources.jar'
+}
+
 task clean(type: Delete) {
     delete rootProject.buildDir
 }

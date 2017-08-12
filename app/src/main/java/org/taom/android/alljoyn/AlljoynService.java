@@ -519,6 +519,9 @@ public class AllJoynService extends Service {
 
     private void doDeviceDiscovered(int id, ProxyBusObject proxyBusObject) {
         String busName = proxyBusObject.getBusName();
+        if (busName.equals(mNetworkService.getBusName()))
+            return;
+
         DeviceAdapterItem.DeviceType deviceType = DeviceAdapterItem.DeviceType.valueOf(id);
 
         String deviceName;
